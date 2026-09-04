@@ -29,6 +29,11 @@ export default function App() {
     const foreground = await Location.requestForegroundPermissionsAsync();
     setForegroundStatus(foreground.status);
 
+    if (foreground.status !== 'granted') {
+      setBackgroundStatus('blocked-by-foreground');
+      return;
+    }
+
     const background = await Location.requestBackgroundPermissionsAsync();
     setBackgroundStatus(background.status);
   };

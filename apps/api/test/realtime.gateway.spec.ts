@@ -120,4 +120,21 @@ describe('RealtimeGateway', () => {
 
     expect(disconnect).not.toHaveBeenCalled();
   });
+
+  it('accepts bearer-authenticated realtime connections without an origin header', () => {
+    const disconnect = jest.fn();
+    const gateway = new RealtimeGateway();
+
+    gateway.handleConnection({
+      id: 'socket-4',
+      handshake: {
+        headers: {
+          authorization: bearerToken,
+        },
+      },
+      disconnect,
+    } as never);
+
+    expect(disconnect).not.toHaveBeenCalled();
+  });
 });
