@@ -34,6 +34,7 @@ Se documenta el uso futuro de:
 
 ### Realtime
 Autenticación prevista mediante JWT en handshake Socket.IO y autorización por rooms resueltos del lado del backend.
+En FASE 1 el gateway ya rechaza conexiones sin encabezado ****** restringe CORS al mismo allowlist configurado para HTTP.
 
 ## Recomendaciones locales
 

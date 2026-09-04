@@ -1,5 +1,6 @@
 import { INestApplication, Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { API_PREFIX } from '@paso-a-paso/config';
+import { getAllowedCorsOrigins } from './common/cors-origins';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 export function configureApp(app: INestApplication): void {
@@ -17,10 +18,7 @@ export function configureApp(app: INestApplication): void {
   );
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
-    origin: (process.env.API_CORS_ORIGIN ?? 'http://localhost:3000,http://localhost:3001')
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean),
+    origin: getAllowedCorsOrigins(),
     credentials: true,
   });
   app.useLogger(new Logger());

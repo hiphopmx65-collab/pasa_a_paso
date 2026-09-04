@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ApiHealthResponse } from '@paso-a-paso/types';
+import { GpsService } from '../gps/gps.service';
 
 @Injectable()
 export class HealthService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly gpsService: GpsService) {}
 
   getStatus(): ApiHealthResponse {
     return {
@@ -12,7 +12,7 @@ export class HealthService {
       service: 'pasa-a-paso-api',
       version: 'v1',
       timestamp: new Date().toISOString(),
-      gpsProvider: this.configService.get<string>('app.gpsProvider', 'demo'),
+      gpsProvider: this.gpsService.getProviderName(),
     };
   }
 }

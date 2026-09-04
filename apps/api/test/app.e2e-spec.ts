@@ -8,6 +8,8 @@ describe('Health endpoint', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
+    process.env.GPS_PROVIDER = 'demo';
+    process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/pasa_a_paso?schema=public';
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -28,7 +30,7 @@ describe('Health endpoint', () => {
       status: 'ok',
       service: 'pasa-a-paso-api',
       version: 'v1',
-      gpsProvider: 'demo',
+      gpsProvider: 'DEMO',
     });
     expect(response.body.timestamp).toEqual(expect.any(String));
   });
