@@ -1,0 +1,373 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  WALKER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum WalkerVerificationStatus {
+  PENDING
+  VERIFIED
+  SUSPENDED
+  INACTIVE
+}
+
+enum WalkStatus {
+  REQUESTED
+  CONFIRMED
+  ASSIGNED
+  WALKER_ON_THE_WAY
+  AT_PICKUP
+  DOG_PICKED_UP
+  IN_PROGRESS
+  NEAR_DESTINATION
+  COMPLETED
+  CANCELLED
+  INCIDENT
+}
+
+enum TrackerProvider {
+  DEMO
+  DIGITAL_MATTER
+  QUECLINK
+}
+
+enum TrackerStatus {
+  ACTIVE
+  INACTIVE
+  OFFLINE
+  PENDING
+}
+
+enum AlertType {
+  TRACKER_OFFLINE
+  LOW_BATTERY
+  DOG_WALKER_SEPARATION
+  GPS_SIGNAL_LOST
+  GEOFENCE_EXIT
+  UNEXPECTED_LOCATION
+}
+
+enum AlertStatus {
+  OPEN
+  RESOLVED
+}
+
+enum IncidentType {
+  LOST_DOG
+  INJURY
+  AGGRESSION
+  GPS_FAILURE
+  LATE_RETURN
+  OTHER
+}
+
+enum IncidentStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  CLOSED
+}
+
+enum PaymentMethod {
+  MOCK
+  CARD
+  CASH
+  TRANSFER
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id             String         @id @default(uuid())
+  firstName      String
+  lastName       String
+  phone          String?
+  email          String         @unique
+  photoUrl       String?
+  role           UserRole
+  status         UserStatus     @default(PENDING)
+  lastActivityAt DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  ownerProfile   OwnerProfile?
+  walkerProfile  WalkerProfile?
+  dogs           Dog[]          @relation("OwnerDogs")
+  ownerWalks     Walk[]         @relation("OwnerWalks")
+  walkerWalks    Walk[]         @relation("WalkerWalks")
+  walkerLocationSamples WalkerLocation[] @relation("WalkerLocationUser")
+  incidentWalks  Incident[]     @relation("IncidentWalker")
+  payments       Payment[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+}
+
+model OwnerProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WalkerProfile {
+  id                 String                     @id @default(uuid())
+  userId             String                     @unique
+  availability       String?
+  rating             Decimal?                   @db.Decimal(3, 2)
+  completedWalks     Int                        @default(0)
+  experience         String?
+  verificationStatus WalkerVerificationStatus   @default(PENDING)
+  documents          Json?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+  user               User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Dog {
+  id                   String      @id @default(uuid())
+  ownerId              String
+  name                 String
+  breed                String?
+  age                  Int?
+  sex                  String?
+  weightKg             Decimal?    @db.Decimal(5, 2)
+  color                String?
+  physicalTraits       String?
+  behaviorNotes        String?
+  allergies            String?
+  medications          String?
+  specialNeeds         String?
+  veterinaryInfo       String?
+  emergencyContact     String?
+  status               String      @default("ACTIVE")
+  qrToken              String?     @unique
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  owner                User        @relation("OwnerDogs", fields: [ownerId], references: [id], onDelete: Cascade)
+  photos               DogPhoto[]
+  tracker              DogTracker?
+  walks                Walk[]
+  trackerLocations     TrackerLocation[]
+  alerts               Alert[]
+  incidents            Incident[]
+
+  @@index([ownerId])
+}
+
+model DogPhoto {
+  id        String   @id @default(uuid())
+  dogId     String
+  url       String
+  createdAt DateTime @default(now())
+  dog       Dog      @relation(fields: [dogId], references: [id], onDelete: Cascade)
+
+  @@index([dogId])
+}
+
+model DogTracker {
+  id            String              @id @default(uuid())
+  dogId         String              @unique
+  provider      TrackerProvider
+  deviceId      String?
+  imei          String?             @unique
+  status        TrackerStatus       @default(PENDING)
+  batteryLevel  Int?
+  lastLatitude  Decimal?            @db.Decimal(10, 7)
+  lastLongitude Decimal?            @db.Decimal(10, 7)
+  lastAccuracy  Decimal?            @db.Decimal(8, 2)
+  lastSpeed     Decimal?            @db.Decimal(8, 2)
+  lastHeading   Decimal?            @db.Decimal(8, 2)
+  lastSeenAt    DateTime?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  dog           Dog                 @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  walks         Walk[]              @relation("WalkTracker")
+  locations     TrackerLocation[]
+  alerts        Alert[]
+
+  @@index([provider, status])
+}
+
+model Walk {
+  id                String            @id @default(uuid())
+  ownerId           String
+  dogId             String
+  walkerId          String?
+  trackerId         String?
+  scheduledStartAt  DateTime
+  durationMinutes   Int
+  priceAmount       Decimal?          @db.Decimal(10, 2)
+  pickupLocation    Json?
+  dropoffLocation   Json?
+  paymentMethod     PaymentMethod     @default(MOCK)
+  status            WalkStatus        @default(REQUESTED)
+  startedAt         DateTime?
+  completedAt       DateTime?
+  otpCodeHash       String?
+  otpExpiresAt      DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  owner             User              @relation("OwnerWalks", fields: [ownerId], references: [id], onDelete: Cascade)
+  dog               Dog               @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  walker            User?             @relation("WalkerWalks", fields: [walkerId], references: [id])
+  tracker           DogTracker?       @relation("WalkTracker", fields: [trackerId], references: [id])
+  trackerLocations  TrackerLocation[]
+  walkerLocations   WalkerLocation[]
+  alerts            Alert[]
+  incidents         Incident[]
+  payment           Payment?
+
+  @@index([ownerId, status])
+  @@index([walkerId, status])
+  @@index([dogId, status])
+  @@index([trackerId, status])
+}
+
+model TrackerLocation {
+  id             String    @id @default(uuid())
+  trackerId      String
+  dogId          String
+  walkId         String?
+  latitude       Decimal   @db.Decimal(10, 7)
+  longitude      Decimal   @db.Decimal(10, 7)
+  accuracy       Decimal?  @db.Decimal(8, 2)
+  speed          Decimal?  @db.Decimal(8, 2)
+  heading        Decimal?  @db.Decimal(8, 2)
+  batteryLevel   Int?
+  recordedAt     DateTime
+  receivedAt     DateTime  @default(now())
+  tracker        DogTracker @relation(fields: [trackerId], references: [id], onDelete: Cascade)
+  dog            Dog        @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  walk           Walk?      @relation(fields: [walkId], references: [id])
+
+  @@index([trackerId, recordedAt])
+  @@index([dogId, recordedAt])
+  @@index([walkId, recordedAt])
+}
+
+model WalkerLocation {
+  id          String    @id @default(uuid())
+  walkId      String
+  walkerId    String
+  latitude    Decimal   @db.Decimal(10, 7)
+  longitude   Decimal   @db.Decimal(10, 7)
+  accuracy    Decimal?  @db.Decimal(8, 2)
+  speed       Decimal?  @db.Decimal(8, 2)
+  heading     Decimal?  @db.Decimal(8, 2)
+  recordedAt  DateTime
+  receivedAt  DateTime  @default(now())
+  walk        Walk      @relation(fields: [walkId], references: [id], onDelete: Cascade)
+  walker      User      @relation("WalkerLocationUser", fields: [walkerId], references: [id], onDelete: Cascade)
+
+  @@index([walkId, recordedAt])
+  @@index([walkerId, recordedAt])
+}
+
+model Alert {
+  id          String      @id @default(uuid())
+  walkId      String?
+  dogId       String?
+  trackerId   String?
+  type        AlertType
+  severity    String
+  message     String
+  latitude    Decimal?    @db.Decimal(10, 7)
+  longitude   Decimal?    @db.Decimal(10, 7)
+  status      AlertStatus @default(OPEN)
+  createdAt   DateTime    @default(now())
+  resolvedAt  DateTime?
+  walk        Walk?       @relation(fields: [walkId], references: [id])
+  dog         Dog?        @relation(fields: [dogId], references: [id])
+  tracker     DogTracker? @relation(fields: [trackerId], references: [id])
+
+  @@index([walkId, createdAt])
+  @@index([trackerId, createdAt])
+}
+
+model Incident {
+  id          String         @id @default(uuid())
+  walkId      String
+  dogId       String
+  walkerId    String?
+  type        IncidentType
+  description String
+  location    Json?
+  photos      Json?
+  status      IncidentStatus @default(OPEN)
+  adminNotes  String?
+  createdAt   DateTime       @default(now())
+  resolvedAt  DateTime?
+  walk        Walk           @relation(fields: [walkId], references: [id], onDelete: Cascade)
+  dog         Dog            @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  walker      User?          @relation("IncidentWalker", fields: [walkerId], references: [id])
+
+  @@index([walkId, createdAt])
+  @@index([dogId, createdAt])
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  walkId          String        @unique
+  userId          String
+  amount          Decimal       @db.Decimal(10, 2)
+  currency        String        @default("MXN")
+  method          PaymentMethod @default(MOCK)
+  status          PaymentStatus @default(PENDING)
+  provider        String?
+  transactionId   String?
+  createdAt       DateTime      @default(now())
+  walk            Walk          @relation(fields: [walkId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  userId     String
+  type       String
+  title      String
+  body       String
+  payload    Json?
+  readAt     DateTime?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}

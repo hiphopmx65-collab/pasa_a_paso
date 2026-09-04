@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Paso a Paso Walker",
+    "slug": "paso-a-paso-walker",
+    "scheme": "paso-a-paso-walker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Paso a Paso necesita tu ubicación para paseos activos.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Paso a Paso necesita ubicación en segundo plano durante un paseo activo."
+      }
+    },
+    "android": {
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE"
+      ],
+      "package": "com.pasoapaso.walker"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Paso a Paso usa ubicación en segundo plano sólo durante paseos activos.",
+          "locationWhenInUsePermission": "Paso a Paso usa tu ubicación para operar paseos activos."
+        }
+      ]
+    ]
+  }
+}

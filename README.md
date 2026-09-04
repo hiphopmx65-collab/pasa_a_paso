@@ -1,41 +1,61 @@
 # Paso a Paso
 
-Monorepo inicial (FASE 1) para la plataforma de paseos de perros **Paso a Paso**.
+Monorepo inicial de **FASE 1** para la plataforma de paseos de perros **Paso a Paso**.
 
-> Estado actual: arquitectura base, apps iniciales, contrato GPS abstracto, providers (DEMO + stubs), documentación técnica y ejecución local.
+> Estado actual: base ejecutable localmente para desarrollo, apps iniciales, contrato GPS desacoplado, provider DEMO funcional y documentación alineada al código real.
 
 ## Stack elegido
 
-- **Monorepo:** Turborepo + pnpm + TypeScript
-- **Web Owner:** Next.js (App Router)
-- **Web Admin:** Next.js (App Router)
-- **Mobile Walker:** Expo + React Native
-- **Backend API:** NestJS + TypeScript
-- **DB:** PostgreSQL + Prisma (schema inicial, sin migraciones de fase 2 todavía)
-- **Auth (plan):** Supabase Auth (JWT)
-- **Realtime (plan):** Socket.IO
-- **Mapas (plan):** Mapbox
-- **Queue/background (plan):** Redis + BullMQ
+- **Monorepo:** pnpm + Turborepo + TypeScript
+- **API:** NestJS + Socket.IO + Prisma
+- **Web Owner:** Next.js + React + TypeScript
+- **Web Admin:** Next.js + React + TypeScript
+- **Mobile Walker:** Expo + React Native + TypeScript
+- **Auth preparado:** Supabase Auth (documentado, sin credenciales reales)
+- **DB preparada:** PostgreSQL + Prisma
 
-## Objetivo de FASE 1
+## Estructura real
 
-1. Dejar monorepo ejecutable localmente.
-2. Dejar estructura profesional, modular y escalable.
-3. Definir contratos de dominio (roles, estados, flujo base de paseo).
-4. Definir arquitectura GPS con `GpsProvider` y adapters independientes:
-   - `DemoGpsProvider` (funcional en memoria para pruebas)
-   - `DigitalMatterProvider` (stub)
-   - `QueclinkProvider` (stub)
-5. Entregar documentación base:
-   - `ARCHITECTURE.md`
-   - `DATABASE.md`
-   - `GPS_INTEGRATION.md`
-   - `SECURITY.md`
+```text
+apps/
+  api/
+  mobile-walker/
+  web-admin/
+  web-owner/
+packages/
+  config/
+  gps/
+  types/
+  ui/
+```
+
+## Lo que sí incluye FASE 1
+
+- Monorepo funcional con workspaces.
+- API NestJS con health check en `/api/v1/health`.
+- Configuración por variables de entorno.
+- Base de manejo de errores y logging del API.
+- Gateway base Socket.IO preparado para realtime.
+- Prisma schema inicial para PostgreSQL.
+- Frontends owner/admin con pantalla inicial funcional.
+- App móvil walker base con permisos de ubicación preparados.
+- `GpsProvider` abstracto + `DemoGpsProvider` funcional + stubs de fabricantes.
+- Tests básicos para health, provider DEMO y validación de coordenadas.
+
+## Lo que **no** incluye todavía
+
+- Integración GPS real.
+- Pagos reales.
+- WhatsApp real.
+- CRUDs completos de negocio.
+- JWT Supabase activo con credenciales reales.
+- FASE 2 en adelante.
 
 ## Requisitos
 
 - Node.js 20+
 - pnpm 9+
+- PostgreSQL 15+ (para usar Prisma fuera de validación)
 
 ## Instalación
 
@@ -43,21 +63,9 @@ Monorepo inicial (FASE 1) para la plataforma de paseos de perros **Paso a Paso**
 pnpm install
 ```
 
-## Ejecución local
-
-```bash
-pnpm dev
-```
-
-Servicios esperados:
-- Owner web: http://localhost:3000
-- Admin web: http://localhost:3001
-- API: http://localhost:4000
-- Expo Walker: consola con QR (puerto asignado por Expo)
-
 ## Variables de entorno
 
-1. Copiar ejemplos:
+Copiar ejemplos:
 
 ```bash
 cp .env.example .env
@@ -67,36 +75,62 @@ cp apps/web-admin/.env.example apps/web-admin/.env.local
 cp apps/mobile-walker/.env.example apps/mobile-walker/.env
 ```
 
-2. Completar valores según el entorno.
+## Desarrollo
 
-> No colocar secretos reales en repositorio.
+### Monorepo completo
+```bash
+pnpm dev
+```
 
-## Scripts principales
+### API
+```bash
+pnpm --filter @paso-a-paso/api dev
+```
 
-- `pnpm dev` → levanta apps de desarrollo con turbo
-- `pnpm build` → build de todos los paquetes
-- `pnpm lint` → lint en workspaces
-- `pnpm test` → tests básicos
-- `pnpm format` → formatea código
+### Web Owner
+```bash
+pnpm --filter @paso-a-paso/web-owner dev
+```
 
-## Alcance de FASE 1 vs pendiente
+### Web Admin
+```bash
+pnpm --filter @paso-a-paso/web-admin dev
+```
 
-### Listo en FASE 1
-- Monorepo y apps base ejecutables.
-- Contratos y tipos compartidos iniciales.
-- Módulo GPS de backend con providers desacoplados.
-- Endpoint health de API.
-- Documentación técnica inicial.
+### Mobile Walker
+```bash
+pnpm --filter @paso-a-paso/mobile-walker dev
+```
 
-### Pendiente (FASE 2+)
-- Modelo Prisma completo y migraciones.
-- Auth real y RBAC operativo.
-- Flujo completo de paseos.
-- Realtime, mapas y tracking persistente.
-- OTP/QR, alertas, incidentes, auditoría, pagos mock y tests de integración.
+## Prisma
 
----
+```bash
+pnpm prisma:format
+pnpm prisma:validate
+pnpm prisma:generate
+```
 
-**Marca:** PASO A PASO  
+## Tests
+
+```bash
+pnpm test
+```
+
+Tests incluidos en FASE 1:
+- API health check
+- `DemoGpsProvider`
+- validación básica de coordenadas GPS
+
+## Documentación adicional
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md)
+- [DATABASE.md](./DATABASE.md)
+- [GPS_INTEGRATION.md](./GPS_INTEGRATION.md)
+- [SECURITY.md](./SECURITY.md)
+
+## Marca
+
+**PASO A PASO**  
 **Eslogan:** CADA PASEO, UN MEJOR DÍA.  
-**Ubicación:** Comitán, Chiapas
+**Ubicación:** Comitán, Chiapas  
+**Instagram:** `paso.a.paso.mx`

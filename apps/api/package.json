@@ -1,0 +1,39 @@
+{
+  "name": "@paso-a-paso/api",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@nestjs/common": "^10.4.15",
+    "@nestjs/config": "^3.3.0",
+    "@nestjs/core": "^10.4.15",
+    "@nestjs/platform-express": "^10.4.15",
+    "@nestjs/platform-socket.io": "^10.4.15",
+    "@nestjs/websockets": "^10.4.15",
+    "@paso-a-paso/config": "workspace:*",
+    "@paso-a-paso/gps": "workspace:*",
+    "@paso-a-paso/types": "workspace:*",
+    "@prisma/client": "^6.0.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+    ,
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^10.4.15",
+    "@types/supertest": "^6.0.3",
+    "prisma": "^6.0.1",
+    "supertest": "^7.0.0"
+  },
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "jest --config ./jest.config.cjs --runInBand",
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate",
+    "prisma:format": "prisma format"
+  }
+}

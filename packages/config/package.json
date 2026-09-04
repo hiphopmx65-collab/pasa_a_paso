@@ -1,0 +1,13 @@
+{
+  "name": "@paso-a-paso/config",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "node -e \"console.log('No tests for @paso-a-paso/config in FASE 1')\""
+  }
+}

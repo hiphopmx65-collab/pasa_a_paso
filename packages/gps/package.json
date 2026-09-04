@@ -1,0 +1,17 @@
+{
+  "name": "@paso-a-paso/gps",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "dependencies": {
+    "@paso-a-paso/config": "workspace:*",
+    "@paso-a-paso/types": "workspace:*"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "jest --config ./jest.config.cjs --runInBand"
+  }
+}
