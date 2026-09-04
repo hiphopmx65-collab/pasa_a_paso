@@ -1,0 +1,21 @@
+{
+  "name": "@paso-a-paso/mobile-walker",
+  "version": "0.1.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "dependencies": {
+    "expo": "^52.0.20",
+    "expo-location": "~18.0.10",
+    "expo-task-manager": "~13.0.0",
+    "react": "18.3.1",
+    "react-native": "0.76.5"
+  },
+  "scripts": {
+    "dev": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "node -e \"console.log('No tests for mobile-walker in FASE 1')\""
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@paso-a-paso/config": ["../../packages/config/src/index.ts"],
+      "@paso-a-paso/gps": ["../../packages/gps/src/index.ts"],
+      "@paso-a-paso/types": ["../../packages/types/src/index.ts"]
+    }
+  }
+}
