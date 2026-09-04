@@ -65,15 +65,16 @@ pnpm install
 
 ## Variables de entorno
 
-Copiar ejemplos:
+Copiar archivos por app:
 
 ```bash
-cp .env.example .env
 cp apps/api/.env.example apps/api/.env
 cp apps/web-owner/.env.example apps/web-owner/.env.local
 cp apps/web-admin/.env.example apps/web-admin/.env.local
 cp apps/mobile-walker/.env.example apps/mobile-walker/.env
 ```
+
+`/.env.example` queda como referencia compartida del workspace; la carga real de FASE 1 se hace desde los archivos de cada app.
 
 ## Desarrollo
 

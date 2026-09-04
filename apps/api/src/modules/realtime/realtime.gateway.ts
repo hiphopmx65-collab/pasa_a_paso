@@ -1,6 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { SOCKET_ROOMS } from '@paso-a-paso/config';
-import { NormalizedGpsPosition, WalkerRealtimePosition } from '@paso-a-paso/types';
+import {
+  NormalizedGpsPosition,
+  RealtimeConnectionContext,
+  WalkerRealtimePosition,
+} from '@paso-a-paso/types';
 import { getAllowedCorsOrigins } from '../../common/cors-origins';
 import {
   OnGatewayInit,
@@ -39,6 +43,8 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   handleConnection(client: Socket): void {
     const origin = client.handshake.headers.origin;
     const authorization = client.handshake.headers.authorization;
+    const expectedToken = process.env.REALTIME_DEV_AUTH_TOKEN ?? 'paso-a-paso-dev-token';
+    const context = client.handshake.auth as RealtimeConnectionContext | undefined;
 
     if (origin && !getAllowedCorsOrigins().includes(origin)) {
       this.logger.warn(`Rejected socket origin: ${origin}`);
@@ -46,8 +52,14 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
       return;
     }
 
-    if (!authorization?.startsWith('Bearer ')) {
+    if (authorization !== 'Bearer ' + expectedToken || !context?.role) {
       this.logger.warn(`Rejected unauthenticated socket: ${client.id}`);
+      client.disconnect(true);
+      return;
+    }
+
+    if (!this.assignRooms(client, context)) {
+      this.logger.warn(`Rejected socket without room context: ${client.id}`);
       client.disconnect(true);
       return;
     }
@@ -69,5 +81,33 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     this.server.to(SOCKET_ROOMS.walker(walkerId)).emit('walker.position', payload);
     this.server.to(SOCKET_ROOMS.walk(walkId)).emit('walker.position', payload);
     this.server.to(SOCKET_ROOMS.adminGlobal).emit('walker.position', payload);
+  }
+
+  private assignRooms(client: Socket, context: RealtimeConnectionContext): boolean {
+    if (context.role === 'ADMIN') {
+      client.join(SOCKET_ROOMS.adminGlobal);
+      if (context.walkId) {
+        client.join(SOCKET_ROOMS.walk(context.walkId));
+      }
+      return true;
+    }
+
+    if (!context.userId) {
+      return false;
+    }
+
+    if (context.role === 'OWNER') {
+      client.join(SOCKET_ROOMS.owner(context.userId));
+    }
+
+    if (context.role === 'WALKER') {
+      client.join(SOCKET_ROOMS.walker(context.userId));
+    }
+
+    if (context.walkId) {
+      client.join(SOCKET_ROOMS.walk(context.walkId));
+    }
+
+    return true;
   }
 }

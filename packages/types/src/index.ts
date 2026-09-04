@@ -52,6 +52,12 @@ export interface WalkerRealtimePosition extends Coordinate {
   source?: 'mobile' | 'demo';
 }
 
+export interface RealtimeConnectionContext {
+  role: UserRole;
+  userId?: string;
+  walkId?: string;
+}
+
 export interface GpsTrackerRequest {
   trackerId: string;
 }

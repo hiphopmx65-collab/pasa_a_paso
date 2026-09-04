@@ -70,7 +70,7 @@ Canales documentados y preparados:
 ### Autenticación prevista
 - JWT Supabase validado en handshake Socket.IO.
 - La asignación a rooms se hará del lado del backend usando el contexto autenticado; el cliente no decide rooms arbitrarios.
-- Mientras no exista validación JWT completa, el gateway sólo acepta conexiones con encabezado `Authorization: ****** y mantiene la segregación de rooms del lado servidor.
+- Mientras no exista validación JWT completa, el gateway usa un token de desarrollo local (`REALTIME_DEV_AUTH_TOKEN`) y mantiene la segregación de rooms del lado servidor.
 - La validación real queda documentada/preparada, no activada todavía por falta de credenciales reales.
 
 ## Evolución prevista (fuera de FASE 1)

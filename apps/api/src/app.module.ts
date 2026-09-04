@@ -11,7 +11,7 @@ import { getEnvConfig } from './config/env.config';
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
-      envFilePath: ['.env', 'apps/api/.env'],
+      envFilePath: ['.env'],
       load: [getEnvConfig],
     }),
     AuthModule,

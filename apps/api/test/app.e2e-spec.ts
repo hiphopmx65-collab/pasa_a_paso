@@ -10,6 +10,7 @@ describe('Health endpoint', () => {
   beforeAll(async () => {
     process.env.GPS_PROVIDER = 'demo';
     process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/pasa_a_paso?schema=public';
+    process.env.REALTIME_DEV_AUTH_TOKEN = 'test-token';
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

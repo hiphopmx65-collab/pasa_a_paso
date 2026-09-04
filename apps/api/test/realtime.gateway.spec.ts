@@ -3,14 +3,17 @@ import { RealtimeGateway } from '../src/modules/realtime/realtime.gateway';
 
 describe('RealtimeGateway', () => {
   const originalOrigins = process.env.API_CORS_ORIGIN;
+  const originalRealtimeToken = process.env.REALTIME_DEV_AUTH_TOKEN;
   const bearerToken = 'Bearer ' + 'test-token';
 
   beforeEach(() => {
     process.env.API_CORS_ORIGIN = 'http://localhost:3000,http://localhost:3001';
+    process.env.REALTIME_DEV_AUTH_TOKEN = 'test-token';
   });
 
   afterAll(() => {
     process.env.API_CORS_ORIGIN = originalOrigins;
+    process.env.REALTIME_DEV_AUTH_TOKEN = originalRealtimeToken;
   });
 
   it('publishes tracker positions to owner, walk, and admin rooms', () => {
@@ -70,6 +73,7 @@ describe('RealtimeGateway', () => {
 
   it('rejects realtime connections without a bearer token', () => {
     const disconnect = jest.fn();
+    const join = jest.fn();
     const gateway = new RealtimeGateway();
 
     gateway.handleConnection({
@@ -78,7 +82,12 @@ describe('RealtimeGateway', () => {
         headers: {
           origin: 'http://localhost:3000',
         },
+        auth: {
+          role: 'OWNER',
+          userId: 'owner-1',
+        },
       },
+      join,
       disconnect,
     } as never);
 
@@ -87,6 +96,7 @@ describe('RealtimeGateway', () => {
 
   it('rejects realtime connections from disallowed origins', () => {
     const disconnect = jest.fn();
+    const join = jest.fn();
     const gateway = new RealtimeGateway();
 
     gateway.handleConnection({
@@ -96,7 +106,12 @@ describe('RealtimeGateway', () => {
           origin: 'https://malicious.example',
           authorization: bearerToken,
         },
+        auth: {
+          role: 'OWNER',
+          userId: 'owner-1',
+        },
       },
+      join,
       disconnect,
     } as never);
 
@@ -105,6 +120,7 @@ describe('RealtimeGateway', () => {
 
   it('accepts realtime connections with an allowed origin and bearer token', () => {
     const disconnect = jest.fn();
+    const join = jest.fn();
     const gateway = new RealtimeGateway();
 
     gateway.handleConnection({
@@ -114,15 +130,24 @@ describe('RealtimeGateway', () => {
           origin: 'http://localhost:3000',
           authorization: bearerToken,
         },
+        auth: {
+          role: 'OWNER',
+          userId: 'owner-1',
+          walkId: 'walk-1',
+        },
       },
+      join,
       disconnect,
     } as never);
 
     expect(disconnect).not.toHaveBeenCalled();
+    expect(join).toHaveBeenNthCalledWith(1, SOCKET_ROOMS.owner('owner-1'));
+    expect(join).toHaveBeenNthCalledWith(2, SOCKET_ROOMS.walk('walk-1'));
   });
 
   it('accepts bearer-authenticated realtime connections without an origin header', () => {
     const disconnect = jest.fn();
+    const join = jest.fn();
     const gateway = new RealtimeGateway();
 
     gateway.handleConnection({
@@ -131,10 +156,18 @@ describe('RealtimeGateway', () => {
         headers: {
           authorization: bearerToken,
         },
+        auth: {
+          role: 'WALKER',
+          userId: 'walker-1',
+          walkId: 'walk-1',
+        },
       },
+      join,
       disconnect,
     } as never);
 
     expect(disconnect).not.toHaveBeenCalled();
+    expect(join).toHaveBeenNthCalledWith(1, SOCKET_ROOMS.walker('walker-1'));
+    expect(join).toHaveBeenNthCalledWith(2, SOCKET_ROOMS.walk('walk-1'));
   });
 });
