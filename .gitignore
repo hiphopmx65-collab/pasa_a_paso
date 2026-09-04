@@ -6,6 +6,7 @@ coverage
 .next
 .expo
 .expo-shared
+*.tsbuildinfo
 .env
 .env.local
 apps/*/.env
