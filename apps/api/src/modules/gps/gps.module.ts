@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   DemoGpsProvider,
   DigitalMatterProvider,
@@ -13,8 +14,9 @@ export const GPS_PROVIDER_TOKEN = 'GPS_PROVIDER_TOKEN';
   providers: [
     {
       provide: GPS_PROVIDER_TOKEN,
-      useFactory: (): GpsProvider => {
-        const configuredProvider = (process.env.GPS_PROVIDER ?? 'demo').toLowerCase();
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService): GpsProvider => {
+        const configuredProvider = configService.get<string>('app.gpsProvider', 'demo').toLowerCase();
 
         switch (configuredProvider) {
           case 'digital_matter':

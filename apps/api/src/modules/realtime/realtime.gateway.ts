@@ -2,14 +2,10 @@ import { Logger } from '@nestjs/common';
 import { SOCKET_ROOMS } from '@paso-a-paso/config';
 import { NormalizedGpsPosition } from '@paso-a-paso/types';
 import {
-  ConnectedSocket,
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
@@ -32,19 +28,6 @@ export class RealtimeGateway implements OnGatewayConnection, OnGatewayDisconnect
 
   handleDisconnect(client: Socket): void {
     this.logger.log(`Socket disconnected: ${client.id}`);
-  }
-
-  @SubscribeMessage('room.join')
-  handleJoinRoom(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { room: string },
-  ): { joined: string } {
-    if (!/^(owner|admin|walker|walk):/.test(payload.room)) {
-      throw new WsException('Unsupported room');
-    }
-
-    client.join(payload.room);
-    return { joined: payload.room };
   }
 
   publishTrackerPosition(ownerId: string, walkId: string, payload: NormalizedGpsPosition): void {

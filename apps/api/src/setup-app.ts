@@ -17,7 +17,10 @@ export function configureApp(app: INestApplication): void {
   );
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
-    origin: (process.env.API_CORS_ORIGIN ?? 'http://localhost:3000,http://localhost:3001').split(','),
+    origin: (process.env.API_CORS_ORIGIN ?? 'http://localhost:3000,http://localhost:3001')
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean),
     credentials: true,
   });
   app.useLogger(new Logger());

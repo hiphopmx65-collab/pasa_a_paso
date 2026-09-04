@@ -117,10 +117,10 @@ model User {
   ownerWalks     Walk[]         @relation("OwnerWalks")
   walkerWalks    Walk[]         @relation("WalkerWalks")
   walkerLocationSamples WalkerLocation[] @relation("WalkerLocationUser")
-  incidentWalks  Incident[]     @relation("IncidentWalker")
-  payments       Payment[]
-  notifications  Notification[]
-  auditLogs      AuditLog[]
+  walkerIncidents      Incident[]        @relation("IncidentWalker")
+  payments             Payment[]
+  notifications        Notification[]
+  auditLogs            AuditLog[]
 }
 
 model OwnerProfile {

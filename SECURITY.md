@@ -33,7 +33,7 @@ Se documenta el uso futuro de:
 - IP allowlist si el proveedor la ofrece
 
 ### Realtime
-Autenticación prevista mediante JWT en handshake Socket.IO y autorización por rooms del backend.
+Autenticación prevista mediante JWT en handshake Socket.IO y autorización por rooms resueltos del lado del backend.
 
 ## Recomendaciones locales
 

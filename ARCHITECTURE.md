@@ -69,6 +69,7 @@ Canales documentados y preparados:
 
 ### Autenticación prevista
 - JWT Supabase validado en handshake Socket.IO.
+- La asignación a rooms se hará del lado del backend usando el contexto autenticado; el cliente no decide rooms arbitrarios.
 - La validación real queda documentada/preparada, no activada todavía por falta de credenciales reales.
 
 ## Evolución prevista (fuera de FASE 1)

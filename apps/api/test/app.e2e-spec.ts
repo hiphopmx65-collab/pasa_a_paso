@@ -28,8 +28,8 @@ describe('Health endpoint', () => {
       status: 'ok',
       service: 'pasa-a-paso-api',
       version: 'v1',
+      gpsProvider: 'demo',
     });
-    expect(response.body.gpsProvider).toBeDefined();
     expect(response.body.timestamp).toEqual(expect.any(String));
   });
 });
