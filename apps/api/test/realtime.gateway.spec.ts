@@ -3,6 +3,7 @@ import { RealtimeGateway } from '../src/modules/realtime/realtime.gateway';
 
 describe('RealtimeGateway', () => {
   const originalOrigins = process.env.API_CORS_ORIGIN;
+  const bearerToken = 'Bearer ' + 'test-token';
 
   beforeEach(() => {
     process.env.API_CORS_ORIGIN = 'http://localhost:3000,http://localhost:3001';
@@ -93,12 +94,30 @@ describe('RealtimeGateway', () => {
       handshake: {
         headers: {
           origin: 'https://malicious.example',
-          authorization: '******',
+          authorization: bearerToken,
         },
       },
       disconnect,
     } as never);
 
     expect(disconnect).toHaveBeenCalledWith(true);
+  });
+
+  it('accepts realtime connections with an allowed origin and bearer token', () => {
+    const disconnect = jest.fn();
+    const gateway = new RealtimeGateway();
+
+    gateway.handleConnection({
+      id: 'socket-3',
+      handshake: {
+        headers: {
+          origin: 'http://localhost:3000',
+          authorization: bearerToken,
+        },
+      },
+      disconnect,
+    } as never);
+
+    expect(disconnect).not.toHaveBeenCalled();
   });
 });

@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { SOCKET_ROOMS } from '@paso-a-paso/config';
-import { NormalizedGpsPosition } from '@paso-a-paso/types';
+import { NormalizedGpsPosition, WalkerRealtimePosition } from '@paso-a-paso/types';
 import { getAllowedCorsOrigins } from '../../common/cors-origins';
 import {
   OnGatewayInit,
@@ -40,8 +40,8 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     const origin = client.handshake.headers.origin;
     const authorization = client.handshake.headers.authorization;
 
-    if (!origin || !getAllowedCorsOrigins().includes(origin)) {
-      this.logger.warn(`Rejected socket origin: ${origin ?? 'missing-origin'}`);
+    if (origin && !getAllowedCorsOrigins().includes(origin)) {
+      this.logger.warn(`Rejected socket origin: ${origin}`);
       client.disconnect(true);
       return;
     }
@@ -65,7 +65,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     this.server.to(SOCKET_ROOMS.adminGlobal).emit('tracker.position', payload);
   }
 
-  publishWalkerPosition(walkerId: string, walkId: string, payload: Record<string, unknown>): void {
+  publishWalkerPosition(walkerId: string, walkId: string, payload: WalkerRealtimePosition): void {
     this.server.to(SOCKET_ROOMS.walker(walkerId)).emit('walker.position', payload);
     this.server.to(SOCKET_ROOMS.walk(walkId)).emit('walker.position', payload);
     this.server.to(SOCKET_ROOMS.adminGlobal).emit('walker.position', payload);

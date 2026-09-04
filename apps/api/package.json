@@ -28,9 +28,9 @@
   },
   "scripts": {
     "dev": "tsx watch src/main.ts",
-    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "build": "pnpm --filter @paso-a-paso/config build && pnpm --filter @paso-a-paso/types build && pnpm --filter @paso-a-paso/gps build && rimraf dist && tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
-    "lint": "tsc -p tsconfig.json --noEmit",
+    "lint": "pnpm --filter @paso-a-paso/config build && pnpm --filter @paso-a-paso/types build && pnpm --filter @paso-a-paso/gps build && tsc -p tsconfig.json --noEmit",
     "test": "jest --config ./jest.config.cjs --runInBand",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",

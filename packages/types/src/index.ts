@@ -44,6 +44,14 @@ export interface NormalizedGpsPosition extends Coordinate {
   source: 'demo' | 'provider';
 }
 
+export interface WalkerRealtimePosition extends Coordinate {
+  accuracyMeters?: number;
+  speedKph?: number;
+  headingDegrees?: number;
+  recordedAt?: string;
+  source?: 'mobile' | 'demo';
+}
+
 export interface GpsTrackerRequest {
   trackerId: string;
 }
