@@ -83,4 +83,22 @@ describe('RealtimeGateway', () => {
 
     expect(disconnect).toHaveBeenCalledWith(true);
   });
+
+  it('rejects realtime connections from disallowed origins', () => {
+    const disconnect = jest.fn();
+    const gateway = new RealtimeGateway();
+
+    gateway.handleConnection({
+      id: 'socket-2',
+      handshake: {
+        headers: {
+          origin: 'https://malicious.example',
+          authorization: '******',
+        },
+      },
+      disconnect,
+    } as never);
+
+    expect(disconnect).toHaveBeenCalledWith(true);
+  });
 });

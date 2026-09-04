@@ -40,8 +40,8 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     const origin = client.handshake.headers.origin;
     const authorization = client.handshake.headers.authorization;
 
-    if (origin && !getAllowedCorsOrigins().includes(origin)) {
-      this.logger.warn(`Rejected socket origin: ${origin}`);
+    if (!origin || !getAllowedCorsOrigins().includes(origin)) {
+      this.logger.warn(`Rejected socket origin: ${origin ?? 'missing-origin'}`);
       client.disconnect(true);
       return;
     }
